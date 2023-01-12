@@ -8,7 +8,7 @@
 /// Packet crate that has the:
 /// PacketDatum Data Structure Enum
 /// TODO: PacketParser
-/// 
+///
 /// author: Kenny Salanga
 ///
 // Initial Notes:
@@ -24,7 +24,7 @@ use std::cmp::Ordering;
 
 #[derive(PartialEq, Eq, PartialOrd)]
 pub enum PacketDatum {
-    // List(Box<Vec<PacketDatum>>),
+    List(Box<Vec<PacketDatum>>),
     Integer(i32),
 }
 
@@ -33,6 +33,14 @@ impl Ord for PacketDatum {
         match (self, other) {
             (Self::Integer(i1), Self::Integer(i2)) => i1.cmp(&i2),
             (Self::List(l1), Self::List(l2)) => l1.cmp(l2),
+            (Self::List(l1), Self::Integer(i2)) => {
+                let l2 = Box::new(vec![PacketDatum::Integer(*i2)]);
+                l1.cmp(&l2)
+            }
+            (Self::Integer(i1), Self::List(l2)) => {
+                let l1 = Box::new(vec![PacketDatum::Integer(*i1)]);
+                l1.cmp(&l2)
+            }
         }
     }
 }
@@ -49,7 +57,7 @@ mod tests {
         assert!(packet_1 == packet_2);
     }
 
-    mod all_ints {
+    mod all_int_packet_datums {
         use super::*;
         // packet 1: [1,1,3,1,1] => Vec<PacketDatum>: [Integer, Integer, Integer...]
         // packet 2: [1,1,5,1,1] => Vec<PacketDatum>: [Integer, Integer, Integer...]
@@ -235,4 +243,37 @@ mod tests {
         }
     }
 
+    mod mixed_packet_datums {
+        use super::*;
+
+        #[test]
+        // packet 1: [9]
+        // packet 2: [[8,7,6]]
+        // packet 1 > packet 2
+        fn int_greater_than_list() {
+            let packet_1 = vec![PacketDatum::Integer(9)];
+            let packet_2 = vec![PacketDatum::List(Box::new(vec![
+                PacketDatum::Integer(8),
+                PacketDatum::Integer(7),
+                PacketDatum::Integer(6),
+            ]))];
+
+            assert!(packet_1 > packet_2);
+        }
+
+        #[test]
+        // packet 1: [5]
+        // packet 2: [[8,7,6]]
+        // packet 1 > packet 2
+        fn int_less_than_list() {
+            let packet_1 = vec![PacketDatum::Integer(5)];
+            let packet_2 = vec![PacketDatum::List(Box::new(vec![
+                PacketDatum::Integer(8),
+                PacketDatum::Integer(7),
+                PacketDatum::Integer(6),
+            ]))];
+
+            assert!(packet_1 < packet_2);
+        }
+    }
 }

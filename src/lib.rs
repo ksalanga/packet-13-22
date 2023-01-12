@@ -32,6 +32,7 @@ impl Ord for PacketDatum {
     fn cmp(&self, other: &Self) -> Ordering {
         match (self, other) {
             (Self::Integer(i1), Self::Integer(i2)) => i1.cmp(&i2),
+            (Self::List(l1), Self::List(l2)) => l1.cmp(l2),
         }
     }
 }
@@ -169,6 +170,69 @@ mod tests {
         }
     }
 
-    // [[1],[2,3,4]] => Vec<PacketDatum>: [List, List]
-    // [[1],4] => Vec<PacketDatum>: [List, Integer]
+    mod all_int_list_packet_datums {
+        use super::*;
+
+        // packet 1: [[1],[2,3,4]] => Vec<PacketDatum>: [List, List]
+        // packet 2: [[1],[2,4,4]] => Vec<PacketDatum>: [List, List]
+
+        // packet 1 < packet 2
+        #[test]
+        fn same_length_packets_less_than_comparison() {
+            let packet_1 = vec![
+                PacketDatum::List(Box::new(vec![PacketDatum::Integer(1)])),
+                PacketDatum::List(Box::new(vec![
+                    PacketDatum::Integer(2),
+                    PacketDatum::Integer(3),
+                    PacketDatum::Integer(4),
+                ])),
+            ];
+
+            let packet_2 = vec![
+                PacketDatum::List(Box::new(vec![PacketDatum::Integer(1)])),
+                PacketDatum::List(Box::new(vec![
+                    PacketDatum::Integer(2),
+                    PacketDatum::Integer(4),
+                    PacketDatum::Integer(4),
+                ])),
+            ];
+
+            assert!(packet_1 < packet_2);
+        }
+
+        // packet 1: [[5]] => Vec<PacketDatum>: [List]
+        // packet 2: [[8,7,6]] => Vec<PacketDatum>: [List]
+
+        // packet 1 < packet 2
+        #[test]
+        fn shorter_length_packet_less_than_longer_length_packet_comparison() {
+            let packet_1 = vec![PacketDatum::List(Box::new(vec![PacketDatum::Integer(5)]))];
+
+            let packet_2 = vec![PacketDatum::List(Box::new(vec![
+                PacketDatum::Integer(8),
+                PacketDatum::Integer(7),
+                PacketDatum::Integer(6),
+            ]))];
+
+            assert!(packet_1 < packet_2);
+        }
+
+        // packet 1: [[10]] => Vec<PacketDatum>: [List]
+        // packet 2: [[8,7,6]] => Vec<PacketDatum>: [List]
+
+        // packet 1 > packet 2
+        #[test]
+        fn shorter_length_packet_greater_than_longer_length_packet_comparison() {
+            let packet_1 = vec![PacketDatum::List(Box::new(vec![PacketDatum::Integer(9)]))];
+
+            let packet_2 = vec![PacketDatum::List(Box::new(vec![
+                PacketDatum::Integer(8),
+                PacketDatum::Integer(7),
+                PacketDatum::Integer(6),
+            ]))];
+
+            assert!(packet_1 > packet_2);
+        }
+    }
+
 }

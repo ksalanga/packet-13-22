@@ -28,6 +28,14 @@ pub enum PacketDatum {
     Integer(i32),
 }
 
+impl PacketDatum {
+    pub fn new_list(list: Vec<i32>) -> PacketDatum {
+        PacketDatum::List(Box::new(
+            list.iter().map(|i| PacketDatum::Integer(*i)).collect(),
+        ))
+    }
+}
+
 impl Ord for PacketDatum {
     fn cmp(&self, other: &Self) -> Ordering {
         match (self, other) {
@@ -59,6 +67,19 @@ mod tests {
     fn empty_packet_comparison() {
         let packet_1: Vec<PacketDatum> = vec![];
         let packet_2: Vec<PacketDatum> = vec![];
+
+        assert!(packet_1 == packet_2);
+    }
+
+    #[test]
+    fn packet_datum_new_list() {
+        let packet_1 = vec![PacketDatum::List(Box::new(vec![
+            PacketDatum::Integer(8),
+            PacketDatum::Integer(7),
+            PacketDatum::Integer(6),
+        ]))];
+
+        let packet_2 = vec![PacketDatum::new_list(vec![8, 7, 6])];
 
         assert!(packet_1 == packet_2);
     }

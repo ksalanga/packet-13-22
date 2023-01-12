@@ -22,7 +22,7 @@
 // if we compare a list with an integer, that integer needs to become a list.
 use std::cmp::Ordering;
 
-#[derive(PartialEq, Eq, PartialOrd)]
+#[derive(PartialEq, Eq)]
 pub enum PacketDatum {
     List(Box<Vec<PacketDatum>>),
     Integer(i32),
@@ -42,6 +42,12 @@ impl Ord for PacketDatum {
                 l1.cmp(&l2)
             }
         }
+    }
+}
+
+impl PartialOrd for PacketDatum {
+    fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
+        Some(self.cmp(other))
     }
 }
 
@@ -225,7 +231,7 @@ mod tests {
             assert!(packet_1 < packet_2);
         }
 
-        // packet 1: [[10]] => Vec<PacketDatum>: [List]
+        // packet 1: [[9]] => Vec<PacketDatum>: [List]
         // packet 2: [[8,7,6]] => Vec<PacketDatum>: [List]
 
         // packet 1 > packet 2
@@ -264,7 +270,7 @@ mod tests {
         #[test]
         // packet 1: [5]
         // packet 2: [[8,7,6]]
-        // packet 1 > packet 2
+        // packet 1 < packet 2
         fn int_less_than_list() {
             let packet_1 = vec![PacketDatum::Integer(5)];
             let packet_2 = vec![PacketDatum::List(Box::new(vec![

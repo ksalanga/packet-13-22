@@ -1,10 +1,14 @@
 /// Advent of Code 2022 Day 13:
 ///
-/// PacketDatum Data Structure Enum
-///
 /// Learning Rust's Ord Trait
 /// By learning how to order nested structures
 ///
+/// Also learning how to recursively parse a list of list of lists.
+///
+/// Packet crate that has the:
+/// PacketDatum Data Structure Enum
+/// TODO: PacketParser
+/// 
 /// author: Kenny Salanga
 ///
 // Initial Notes:

@@ -7,6 +7,12 @@ use std::str::FromStr;
 
 // Initial Notes:
 
+// First: to clean out any incorrectly nested brackets:
+// - make a stack of opening brackets: [ and closing brackets: ]
+// - if those stacks are unequal lengths:
+//      - there isn't a closing bracket for every opening bracket.
+//      - that is an incorrectly nested group of brackets.
+
 // How can we match an opening bracket to its respective closing bracket?
 
 // Finding all matching bracket pairs: Assuming we have valid amount of brackets (all opening matches a closing):

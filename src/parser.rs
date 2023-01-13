@@ -48,6 +48,31 @@ use std::str::FromStr;
 //              - set all aggregated siblings + the current bracket pair as children to that parent
 //              - make the current level bracket pair to this parent. "moved up the tree"
 
+// Note: Treat bracket pairs as similar to intervals with an (opening bracket, closing bracket) being a (starting index, ending index) in the string
+
+// Another tree generation algorithm idea:
+
+// Do this for ALL interval pairs:
+// Note: We assume we already have the interval pairs so accessing the corresponding closing bracket for every opening bracket index is constant time.
+// For every bracket pair = current bracket pair:
+// - Make this interval a node and store the key: interval value: node reference in a hashmap if it doesn't exist in the hashmap
+// - find the first opening bracket to its left that current bracket is inside of:
+//      - first opening bracket = parent:
+//          - if parent interval is already in hashmap:
+//              - parent_node = the node reference in the hashmap.
+//          - else:
+//              - parent_node = make a new node for parent, store it in hashmap.
+//          - current bracket parent = parent_node
+//          - parent_node child = current_bracket
+//      - if you cant find any to the left that it fits in:
+//          - its parent is the root bracket
+// - move to the next bracket interval
+
+// After all parent child relationships have been made:
+// - Starting from the root, reconstruct the bracket tree / hierarchy.
+
+// O(N^2) solution, for every bracket pair, we might look at every other bracket pair.
+
 pub struct PacketParserError;
 
 pub struct PacketParser {

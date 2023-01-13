@@ -45,6 +45,11 @@ use std::str::FromStr;
 // - if opening brackets stack is not empty: invalid bracket string.
 //      - every opening bracket has a close bracket pair
 
+// TODO: Bracket Pair Hierarchy Forming Algorithm does include ints
+// For any bracket with children:
+// the children are only brackets and do not include potential ints inside
+// Once we include ints, we have the actual PacketDatum / Item Tree
+
 pub struct PacketParserError;
 
 pub struct PacketParser {

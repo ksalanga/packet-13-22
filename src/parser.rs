@@ -1,3 +1,4 @@
+use crate::datum::PacketDatum;
 use std::str::FromStr;
 
 /// PacketParser converts a string that represents a packet of datums: [[1], 2, 3]
@@ -43,7 +44,9 @@ use std::str::FromStr;
 
 pub struct PacketParserError;
 
-pub struct PacketParser {}
+pub struct PacketParser {
+    packet: Vec<PacketDatum>,
+}
 
 impl FromStr for PacketParser {
     type Err = PacketParserError;

@@ -1,16 +1,15 @@
-/// Advent of Code 2022 Day 13:
-///
-/// Learning Rust's Ord Trait
-/// By learning how to order nested structures
-///
-/// Also learning how to recursively parse a list of list of lists.
-///
-/// Packet crate that has the:
-/// PacketDatum Data Structure Enum
-/// TODO: PacketParser
-///
+/// Advent of Code 2022 Day 13 Crate:
 /// author: Kenny Salanga
-///
-///
+/// 
+/// Lexicographically Ordering and Comparing Nested Structures
+/// 
+/// Crate contains:
+/// - Datum Module
+///     - PacketDatum enum
+///         - nested structure that has lexicographic ordering
+/// - Parser Module
+///     - PacketParser structure
+///         - takes a string: nested list of ints and gives a Vec of PacketDatum
+/// 
 mod datum;
 mod parser;

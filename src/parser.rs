@@ -14,6 +14,33 @@ use std::str::FromStr;
 //      - put that closing bracket index into a seen index set
 //      - continue on to the next innermost bracket
 // - This algorithm works, might not be the most efficient
+// - This gets us all bracket pairs, but it doesn't show the bracket hierarchy
+
+// What brackets are inside other brackets?
+// What brackets are siblings to other brackets?
+
+// 1. a bracket has a single parent
+// 2. a bracket can have multiple children
+
+// You are a parent of a bracket pair if:
+// your bracket pair overlaps the other bracket pair
+
+// you are a child of a parent if:
+// your bracket pair is inside some bracket pair
+
+// This algorithm does not work. counter example:
+// [[], [], []], [[], [], []]
+// Creating bracket pair hierarchy: Initial Algorithm
+// - Starting from the innermost opening bracket, bracket pair as the Current Level Bracket Pair
+// - Create a siblings / same level vector
+// - While the bracket pairs are not empty,
+//      - Pop the next innermost opening bracket, bracket pair:
+//          - if popped bracket isn't their parent, they're siblings:
+//              - add this popped bracket pair into the siblings vector
+//          - if it is their parent:
+//              - set all aggregated siblings + the current bracket pair as children to that parent
+//              - make the current level bracket pair to this parent. "moved up the tree"
+
 pub struct PacketParserError;
 
 pub struct PacketParser {}

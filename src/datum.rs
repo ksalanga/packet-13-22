@@ -21,7 +21,17 @@ pub enum PacketDatum {
 }
 
 impl PacketDatum {
-    pub fn list(list: Vec<i32>) -> PacketDatum {
+    fn list(list: Vec<Rc<RefCell<PacketDatum>>>) -> PacketDatum {
+        let mut packet_datum_list = PacketDatum::List(vec![]);
+
+        for packet_datum in list {
+            packet_datum_list.add_list(packet_datum);
+        }
+
+        packet_datum_list
+    }
+
+    fn int_list(list: Vec<i32>) -> PacketDatum {
         PacketDatum::List(
             list.iter()
                 .map(|i| Rc::new(RefCell::new(PacketDatum::Integer(*i))))
@@ -29,13 +39,21 @@ impl PacketDatum {
         )
     }
 
-    pub fn add_list(&mut self, packet_datum: Rc<RefCell<PacketDatum>>) {
+    fn add_list(&mut self, packet_datum: Rc<RefCell<PacketDatum>>) {
         match self {
             PacketDatum::List(l) => {
                 l.push(packet_datum);
             }
             PacketDatum::Integer(_) => panic!("cannot add item to Integer PacketDatum"),
         }
+    }
+
+    fn rc_i_list(list: Vec<i32>) -> Rc<RefCell<PacketDatum>> {
+        Rc::new(RefCell::new(PacketDatum::int_list(list)))
+    }
+
+    fn rc_int(i: i32) -> Rc<RefCell<PacketDatum>> {
+        Rc::new(RefCell::new(PacketDatum::Integer(i)))
     }
 }
 

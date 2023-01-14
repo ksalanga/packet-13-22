@@ -21,6 +21,7 @@ pub enum PacketDatum {
 }
 
 impl PacketDatum {
+    #[allow(dead_code)]
     fn list(list: Vec<Rc<RefCell<PacketDatum>>>) -> PacketDatum {
         let mut packet_datum_list = PacketDatum::List(vec![]);
 
@@ -31,6 +32,7 @@ impl PacketDatum {
         packet_datum_list
     }
 
+    #[allow(dead_code)]
     fn int_list(list: Vec<i32>) -> PacketDatum {
         PacketDatum::List(
             list.iter()
@@ -48,10 +50,12 @@ impl PacketDatum {
         }
     }
 
+    #[allow(dead_code)]
     fn rc_i_list(list: Vec<i32>) -> Rc<RefCell<PacketDatum>> {
         Rc::new(RefCell::new(PacketDatum::int_list(list)))
     }
 
+    #[allow(dead_code)]
     fn rc_int(i: i32) -> Rc<RefCell<PacketDatum>> {
         Rc::new(RefCell::new(PacketDatum::Integer(i)))
     }

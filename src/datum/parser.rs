@@ -1,3 +1,10 @@
+use std::str::FromStr;
+
+use super::PacketDatum;
+
+/// PacketParser converts a nested list string that represents a packet: [[1], 2, 3]
+/// into a List PacketDatum variant
+/// author: Kenneth Salanga
 
 // Initial Notes:
 
@@ -66,3 +73,12 @@
 
 // This should get us the "Tree Hierarchy" where the root PacketDatum List is in the hashmap @ index 0
 
+pub struct PacketParseError;
+
+impl FromStr for PacketDatum {
+    type Err = PacketParseError;
+
+    fn from_str(_: &str) -> Result<Self, <Self as FromStr>::Err> {
+        todo!()
+    }
+}

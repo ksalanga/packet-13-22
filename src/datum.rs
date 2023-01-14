@@ -5,6 +5,10 @@ use std::cmp::Ordering;
 /// - Vector of other PacketDatum
 /// - Integer
 /// author: Kenneth Salanga
+///
+/// Contains:
+/// - Parser Module
+///     - takes a nested list of ints string & ouputs a List PacketDatum Variant
 
 // we a have a packet that contains a list of packet blocks:
 // those packet blocks can be: An integer, or another list of packet blocks.

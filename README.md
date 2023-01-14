@@ -15,6 +15,4 @@
     - Nested data structure that represents a list of lists and/or ints
   - _Note: I could have abstracted the wording to be a ListItem Enum but in the spirit of the advent of code challenge I made it a PacketDatum since the challenge was getting a signal of packets_
 - ### Parser module
-
-  - PacketParser Structure:
-    - Parses a nested list string input into a Vector of PacketDatum
+  - Parses a nested list string input into a List PacketDatum Variant

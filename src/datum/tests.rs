@@ -10,9 +10,9 @@ fn empty_packet_comparison() {
 
 #[test]
 fn packet_datum_new_list() {
-    let packet_1 = vec![PacketDatum::list(vec![8, 7, 6])];
+    let packet_1 = vec![PacketDatum::int_list(vec![8, 7, 6])];
 
-    let packet_2 = vec![PacketDatum::list(vec![8, 7, 6])];
+    let packet_2 = vec![PacketDatum::int_list(vec![8, 7, 6])];
 
     assert!(packet_1 == packet_2);
 }
@@ -25,8 +25,8 @@ mod all_int_packet_datums {
     // packet 1 < packet 2
     #[test]
     fn same_length_packets_less_than_comparison() {
-        let packet_1 = pd::list(vec![1, 1, 3, 1, 1]);
-        let packet_2 = pd::list(vec![1, 1, 5, 1, 1]);
+        let packet_1 = pd::int_list(vec![1, 1, 3, 1, 1]);
+        let packet_2 = pd::int_list(vec![1, 1, 5, 1, 1]);
 
         assert!(packet_1 < packet_2);
     }
@@ -37,9 +37,9 @@ mod all_int_packet_datums {
     // packet 1 > packet 2
     #[test]
     fn same_length_packets_greater_than_comparison() {
-        let packet_1 = pd::list(vec![1, 1, 5, 1, 1]);
+        let packet_1 = pd::int_list(vec![1, 1, 5, 1, 1]);
 
-        let packet_2 = pd::list(vec![1, 1, 3, 1, 1]);
+        let packet_2 = pd::int_list(vec![1, 1, 3, 1, 1]);
 
         assert!(packet_1 > packet_2);
     }
@@ -50,9 +50,9 @@ mod all_int_packet_datums {
     // packet 1 == packet 2
     #[test]
     fn same_length_packets_equal_comparison() {
-        let packet_1 = pd::list(vec![1, 1, 3, 1, 1]);
+        let packet_1 = pd::int_list(vec![1, 1, 3, 1, 1]);
 
-        let packet_2 = pd::list(vec![1, 1, 3, 1, 1]);
+        let packet_2 = pd::int_list(vec![1, 1, 3, 1, 1]);
 
         assert!(packet_1 == packet_2);
     }
@@ -63,8 +63,8 @@ mod all_int_packet_datums {
     // packet 1 < packet 2
     #[test]
     fn longer_packet_less_than_shorter_packet_comparison() {
-        let packet_1 = pd::list(vec![1, 1, 3, 1, 1]);
-        let packet_2 = pd::list(vec![1, 1, 5]);
+        let packet_1 = pd::int_list(vec![1, 1, 3, 1, 1]);
+        let packet_2 = pd::int_list(vec![1, 1, 5]);
 
         assert!(packet_1 < packet_2);
     }
@@ -75,8 +75,8 @@ mod all_int_packet_datums {
     // packet 1 < packet 2
     #[test]
     fn prefix_packet_less_than_comparison() {
-        let packet_1 = pd::list(vec![1, 1, 3]);
-        let packet_2 = pd::list(vec![1, 1, 3, 1, 1]);
+        let packet_1 = pd::int_list(vec![1, 1, 3]);
+        let packet_2 = pd::int_list(vec![1, 1, 3, 1, 1]);
 
         assert!(packet_1 < packet_2);
     }
@@ -91,9 +91,9 @@ mod all_int_list_packet_datums {
     // packet 1 < packet 2
     #[test]
     fn same_length_packets_less_than_comparison() {
-        let packet_1 = vec![pd::list(vec![1]), pd::list(vec![2, 3, 4])];
+        let packet_1 = vec![pd::int_list(vec![1]), pd::int_list(vec![2, 3, 4])];
 
-        let packet_2 = vec![pd::list(vec![1]), pd::list(vec![2, 4, 4])];
+        let packet_2 = vec![pd::int_list(vec![1]), pd::int_list(vec![2, 4, 4])];
 
         assert!(packet_1 < packet_2);
     }
@@ -104,9 +104,9 @@ mod all_int_list_packet_datums {
     // packet 1 < packet 2
     #[test]
     fn shorter_length_packet_less_than_longer_length_packet_comparison() {
-        let packet_1 = vec![pd::list(vec![5])];
+        let packet_1 = vec![pd::int_list(vec![5])];
 
-        let packet_2 = vec![pd::list(vec![8, 7, 6])];
+        let packet_2 = vec![pd::int_list(vec![8, 7, 6])];
 
         assert!(packet_1 < packet_2);
     }
@@ -117,9 +117,9 @@ mod all_int_list_packet_datums {
     // packet 1 > packet 2
     #[test]
     fn shorter_length_packet_greater_than_longer_length_packet_comparison() {
-        let packet_1 = vec![pd::list(vec![9])];
+        let packet_1 = vec![pd::int_list(vec![9])];
 
-        let packet_2 = vec![pd::list(vec![8, 7, 6])];
+        let packet_2 = vec![pd::int_list(vec![8, 7, 6])];
         assert!(packet_1 > packet_2);
     }
 }
@@ -133,7 +133,7 @@ mod mixed_packet_datums {
     // packet 1 > packet 2
     fn int_greater_than_list() {
         let packet_1 = vec![pd::Integer(9)];
-        let packet_2 = vec![pd::list(vec![8, 7, 6])];
+        let packet_2 = vec![pd::int_list(vec![8, 7, 6])];
 
         assert!(packet_1 > packet_2);
     }
@@ -144,7 +144,7 @@ mod mixed_packet_datums {
     // packet 1 < packet 2
     fn int_less_than_list() {
         let packet_1 = vec![pd::Integer(5)];
-        let packet_2 = vec![pd::list(vec![8, 7, 6])];
+        let packet_2 = vec![pd::int_list(vec![8, 7, 6])];
 
         assert!(packet_1 < packet_2);
     }
@@ -154,7 +154,7 @@ mod mixed_packet_datums {
     // packet 2: [10]
     // packet 1 < packet 2
     fn list_less_than_int() {
-        let packet_1 = vec![pd::list(vec![8, 7, 6])];
+        let packet_1 = vec![pd::int_list(vec![8, 7, 6])];
         let packet_2 = vec![pd::Integer(10)];
 
         assert!(packet_1 < packet_2);
@@ -165,7 +165,7 @@ mod mixed_packet_datums {
     // packet 2: [5]
     // packet 1 > packet 2
     fn list_greater_than_int() {
-        let packet_1 = vec![pd::list(vec![8, 7, 6])];
+        let packet_1 = vec![pd::int_list(vec![8, 7, 6])];
         let packet_2 = vec![pd::Integer(5)];
 
         assert!(packet_1 > packet_2);
@@ -181,9 +181,9 @@ mod advent_of_code_examples_comparisons {
     // [[1],[2,3,4]] vs [[1],4]
     // left side smaller
     fn pair_2() {
-        let packet_1 = vec![pd::list(vec![1]), pd::list(vec![2, 3, 4])];
+        let packet_1 = vec![pd::int_list(vec![1]), pd::int_list(vec![2, 3, 4])];
 
-        let packet_2 = vec![pd::list(vec![1]), PacketDatum::Integer(4)];
+        let packet_2 = vec![pd::int_list(vec![1]), PacketDatum::Integer(4)];
 
         assert!(packet_1 < packet_2);
     }
@@ -193,7 +193,7 @@ mod advent_of_code_examples_comparisons {
     // Right side is smaller, so inputs are not in the right order
     fn pair_3() {
         let packet_1 = vec![pd::Integer(9)];
-        let packet_2 = vec![pd::list(vec![8, 7, 6])];
+        let packet_2 = vec![pd::int_list(vec![8, 7, 6])];
 
         assert!(packet_1 > packet_2)
     }
@@ -202,9 +202,9 @@ mod advent_of_code_examples_comparisons {
     // [[4,4],4,4] vs [[4,4],4,4,4]
     // Left side ran out of items, so inputs are in the right order
     fn pair_4() {
-        let packet_1 = vec![pd::list(vec![4, 4]), pd::Integer(4), pd::Integer(4)];
+        let packet_1 = vec![pd::int_list(vec![4, 4]), pd::Integer(4), pd::Integer(4)];
         let packet_2 = vec![
-            pd::list(vec![4, 4]),
+            pd::int_list(vec![4, 4]),
             pd::Integer(4),
             pd::Integer(4),
             pd::Integer(4),
@@ -242,11 +242,11 @@ mod advent_of_code_examples_comparisons {
     // [[[]]] vs [[]]
     // Right side ran out of items, so inputs are not in the right order
     fn pair_7() {
-        let mut list_of_list = pd::list(vec![]);
-        list_of_list.add_list(Rc::new(RefCell::new(pd::list(vec![]))));
+        let mut list_of_list = pd::int_list(vec![]);
+        list_of_list.add_list(Rc::new(RefCell::new(pd::int_list(vec![]))));
 
         let packet_1: Vec<PacketDatum> = vec![list_of_list];
-        let packet_2 = vec![pd::list(vec![])];
+        let packet_2 = vec![pd::int_list(vec![])];
 
         assert!(packet_1 > packet_2);
     }
@@ -256,14 +256,14 @@ mod advent_of_code_examples_comparisons {
     // Right side is smaller, so inputs are not in the right order
     fn pair_8() {
         fn nested_list(inside_list: Vec<i32>) -> PacketDatum {
-            let five_six_seven = pd::list(inside_list);
-            let mut four = pd::list(vec![4]);
+            let five_six_seven = pd::int_list(inside_list);
+            let mut four = pd::int_list(vec![4]);
             four.add_list(Rc::new(RefCell::new(five_six_seven)));
-            let mut three = pd::list(vec![3]);
+            let mut three = pd::int_list(vec![3]);
             three.add_list(Rc::new(RefCell::new(four)));
-            let mut two = pd::list(vec![2]);
+            let mut two = pd::int_list(vec![2]);
             two.add_list(Rc::new(RefCell::new(three)));
-            let mut one = pd::list(vec![1]);
+            let mut one = pd::int_list(vec![1]);
             one.add_list(Rc::new(RefCell::new(two)));
             one.add_list(Rc::new(RefCell::new(PacketDatum::Integer(8))));
             one.add_list(Rc::new(RefCell::new(PacketDatum::Integer(9))));

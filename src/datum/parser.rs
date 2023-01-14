@@ -78,7 +78,37 @@ pub struct PacketParseError;
 impl FromStr for PacketDatum {
     type Err = PacketParseError;
 
-    fn from_str(_: &str) -> Result<Self, <Self as FromStr>::Err> {
-        todo!()
+
+fn get_valid_tokens(s: &str) -> Vec<String> {
+    let s: String = s.chars().filter(|c| !c.is_whitespace()).collect();
+
+    let mut valid_tokens = vec![];
+
+    let mut chars = s.chars().peekable();
+
+    while let Some(c) = chars.next() {
+        match c {
+            '[' | ']' => valid_tokens.push(c.to_string()),
+            '0'..='9' | '-' => {
+                let mut int_str = String::from(c);
+
+                while let Some(c) = chars.peek() {
+                    if !c.is_numeric() {
+                        break;
+                    }
+
+                    int_str.push(chars.next().unwrap());
+                }
+
+                valid_tokens.push(int_str);
+            }
+            _ => (),
+        }
+    }
+
+    valid_tokens
+}
+
+        let parsed_list: PacketDatum = "[1,-220,3]".parse().unwrap();
     }
 }

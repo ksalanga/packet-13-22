@@ -14,7 +14,7 @@ use std::rc::Rc;
 
 // we a have a packet that contains a list of packet blocks:
 // those packet blocks can be: An integer, or another list of packet blocks.
-#[derive(PartialEq, Eq)]
+#[derive(PartialEq, Eq, Clone)]
 pub enum PacketDatum {
     List(Vec<Rc<RefCell<PacketDatum>>>),
     Integer(i32),

@@ -1,9 +1,3 @@
-use crate::datum::PacketDatum;
-use std::str::FromStr;
-
-/// PacketParser converts a string that represents a packet of datums: [[1], 2, 3]
-/// into a Vector of PacketDatums
-/// author: Kenneth Salanga
 
 // Initial Notes:
 
@@ -72,16 +66,3 @@ use std::str::FromStr;
 
 // This should get us the "Tree Hierarchy" where the root PacketDatum List is in the hashmap @ index 0
 
-pub struct PacketParserError;
-
-pub struct PacketParser {
-    packet: Vec<PacketDatum>,
-}
-
-impl FromStr for PacketParser {
-    type Err = PacketParserError;
-
-    fn from_str(_: &str) -> Result<Self, <Self as FromStr>::Err> {
-        todo!()
-    }
-}

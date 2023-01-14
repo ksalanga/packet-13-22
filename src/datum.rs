@@ -57,9 +57,7 @@ impl PartialOrd for PacketDatum {
     }
 }
 
-#[cfg(test)]
-mod tests {
-    use super::*;
+mod parser;
 
 #[cfg(test)]
 mod tests;

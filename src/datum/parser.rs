@@ -174,7 +174,7 @@ mod tests {
     fn all_ints() {
         let parsed_list: PacketDatum = "[1,2,3]".parse().unwrap();
 
-        let expected_list = PacketDatum::list(vec![1, 2, 3]);
+        let expected_list = PacketDatum::int_list(vec![1, 2, 3]);
 
         assert!(parsed_list == expected_list);
     }
@@ -183,8 +183,97 @@ mod tests {
     fn negative_ints() {
         let parsed_list: PacketDatum = "[1,-220,3]".parse().unwrap();
 
-        let expected_list = PacketDatum::list(vec![1, -220, 3]);
+        let expected_list = PacketDatum::int_list(vec![1, -220, 3]);
 
         assert!(parsed_list == expected_list);
+    }
+
+    mod advent_of_code_examples {
+        use crate::datum::PacketDatum as pd;
+        use std::cell::RefCell;
+        use std::rc::Rc;
+
+        #[test]
+        fn ex_1() {
+            let parsed_list: pd = "[1,1,3,1,1]".parse().unwrap();
+            let expected_list = pd::int_list(vec![1, 1, 3, 1, 1]);
+
+            assert!(parsed_list == expected_list);
+        }
+
+        #[test]
+        // [[1],[2,3,4]]
+        // [[1],4]
+        fn ex_2() {
+            let parsed_list_1: pd = "[[1],[2,3,4]]".parse().unwrap();
+            let expected_list_1 =
+                pd::list(vec![pd::rc_i_list(vec![1]), pd::rc_i_list(vec![2, 3, 4])]);
+
+            assert!(parsed_list_1 == expected_list_1);
+
+            let parsed_list_2: pd = "[[1],4]".parse().unwrap();
+            let expected_list_2 = pd::list(vec![pd::rc_i_list(vec![1]), pd::rc_int(4)]);
+
+            assert!(parsed_list_2 == expected_list_2);
+        }
+
+        #[test]
+        // []
+        // [3]
+        fn ex_6() {
+            let parsed_list_1: pd = "[]".parse().unwrap();
+            let expected_list_1 = pd::List(vec![]);
+            assert!(parsed_list_1 == expected_list_1);
+
+            let parsed_list_2: pd = "[3]".parse().unwrap();
+            let expected_list_2 = pd::list(vec![pd::rc_int(3)]);
+            assert!(parsed_list_2 == expected_list_2);
+        }
+
+        #[test]
+        // List 1: [[]]
+        // List 2: [[[]]]
+        // Right side ran out of items, so inputs are not in the right order
+        fn ex_7() {
+            let parsed_list_1: pd = "[[]]".parse().unwrap();
+            let expected_list_1 = pd::list(vec![pd::rc_i_list(vec![])]);
+            assert!(parsed_list_1 == expected_list_1);
+
+            let parsed_list_2: pd = "[[[]]]".parse().unwrap();
+            let mut expected_list_2 = pd::List(vec![]);
+            expected_list_2.add_list(Rc::new(RefCell::new(expected_list_1)));
+
+            assert!(parsed_list_2 == expected_list_2);
+
+            assert!(parsed_list_1 < parsed_list_2);
+        }
+
+        #[test]
+        // [1,[2,[3,[4,[5,6,7]]]],8,9]
+        // [1,[2,[3,[4,[5,6,0]]]],8,9]
+        fn ex_8() {
+            fn nested_list(inside_list: Vec<i32>) -> pd {
+                let five_six_seven = pd::int_list(inside_list);
+                let mut four = pd::int_list(vec![4]);
+                four.add_list(Rc::new(RefCell::new(five_six_seven)));
+                let mut three = pd::int_list(vec![3]);
+                three.add_list(Rc::new(RefCell::new(four)));
+                let mut two = pd::int_list(vec![2]);
+                two.add_list(Rc::new(RefCell::new(three)));
+                let mut one = pd::int_list(vec![1]);
+                one.add_list(Rc::new(RefCell::new(two)));
+                one.add_list(Rc::new(RefCell::new(pd::Integer(8))));
+                one.add_list(Rc::new(RefCell::new(pd::Integer(9))));
+                one
+            }
+
+            let parsed_list_1: pd = "[1,[2,[3,[4,[5,6,7]]]],8,9]".parse().unwrap();
+            let expected_list_1 = nested_list(vec![5, 6, 7]);
+            assert!(parsed_list_1 == expected_list_1);
+
+            let parsed_list_2: pd = "[1,[2,[3,[4,[5,6,0]]]],8,9]".parse().unwrap();
+            let expected_list_2 = nested_list(vec![5, 6, 0]);
+            assert!(parsed_list_2 == expected_list_2);
+        }
     }
 }

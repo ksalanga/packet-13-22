@@ -1,4 +1,6 @@
+use std::cell::RefCell;
 use std::cmp::Ordering;
+use std::rc::Rc;
 
 /// PacketDatum Enum:
 /// Nested Data structure that can take variants:
@@ -12,24 +14,46 @@ use std::cmp::Ordering;
 
 // we a have a packet that contains a list of packet blocks:
 // those packet blocks can be: An integer, or another list of packet blocks.
-#[derive(PartialEq, Eq)]
+#[derive(PartialEq, Eq, Clone)]
 pub enum PacketDatum {
-    List(Vec<PacketDatum>),
+    List(Vec<Rc<RefCell<PacketDatum>>>),
     Integer(i32),
 }
 
 impl PacketDatum {
-    pub fn new_list(list: Vec<i32>) -> PacketDatum {
-        PacketDatum::List(list.iter().map(|i| PacketDatum::Integer(*i)).collect())
+    fn list(list: Vec<Rc<RefCell<PacketDatum>>>) -> PacketDatum {
+        let mut packet_datum_list = PacketDatum::List(vec![]);
+
+        for packet_datum in list {
+            packet_datum_list.add_list(packet_datum);
+        }
+
+        packet_datum_list
     }
 
-    pub fn add_list(&mut self, packet_datum: PacketDatum) {
+    fn int_list(list: Vec<i32>) -> PacketDatum {
+        PacketDatum::List(
+            list.iter()
+                .map(|i| Rc::new(RefCell::new(PacketDatum::Integer(*i))))
+                .collect(),
+        )
+    }
+
+    fn add_list(&mut self, packet_datum: Rc<RefCell<PacketDatum>>) {
         match self {
             PacketDatum::List(l) => {
                 l.push(packet_datum);
             }
             PacketDatum::Integer(_) => panic!("cannot add item to Integer PacketDatum"),
         }
+    }
+
+    fn rc_i_list(list: Vec<i32>) -> Rc<RefCell<PacketDatum>> {
+        Rc::new(RefCell::new(PacketDatum::int_list(list)))
+    }
+
+    fn rc_int(i: i32) -> Rc<RefCell<PacketDatum>> {
+        Rc::new(RefCell::new(PacketDatum::Integer(i)))
     }
 }
 
@@ -41,11 +65,11 @@ impl Ord for PacketDatum {
             (Self::Integer(i1), Self::Integer(i2)) => i1.cmp(&i2),
             (Self::List(l1), Self::List(l2)) => l1.cmp(l2),
             (Self::List(l1), Self::Integer(i2)) => {
-                let l2 = vec![PacketDatum::Integer(*i2)];
+                let l2 = vec![Rc::new(RefCell::new(PacketDatum::Integer(*i2)))];
                 l1.cmp(&l2)
             }
             (Self::Integer(i1), Self::List(l2)) => {
-                let l1 = vec![PacketDatum::Integer(*i1)];
+                let l1 = vec![Rc::new(RefCell::new(PacketDatum::Integer(*i1)))];
                 l1.cmp(&l2)
             }
         }

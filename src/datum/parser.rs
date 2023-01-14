@@ -1,6 +1,8 @@
-use std::str::FromStr;
-
 use super::PacketDatum;
+use std::cell::RefCell;
+use std::collections::HashMap;
+use std::rc::Rc;
+use std::str::FromStr;
 
 /// PacketParser converts a nested list string that represents a packet: [[1], 2, 3]
 /// into a List PacketDatum variant
@@ -73,12 +75,205 @@ use super::PacketDatum;
 
 // This should get us the "Tree Hierarchy" where the root PacketDatum List is in the hashmap @ index 0
 
+#[derive(Debug)]
 pub struct PacketParseError;
 
 impl FromStr for PacketDatum {
     type Err = PacketParseError;
 
-    fn from_str(_: &str) -> Result<Self, <Self as FromStr>::Err> {
-        todo!()
+    fn from_str(s: &str) -> Result<Self, <Self as FromStr>::Err> {
+        let mut open_bracket_indices: Vec<usize> = Vec::new();
+        let mut lists: HashMap<usize, Rc<RefCell<PacketDatum>>> = HashMap::new();
+
+        if s.is_empty() {
+            return Err(PacketParseError);
+        }
+
+        if s.chars().next().unwrap() != '[' {
+            return Err(PacketParseError);
+        }
+
+        for (idx, token) in get_valid_tokens(s).iter().enumerate() {
+            match token.as_str() {
+                "[" => {
+                    let new_list = Rc::new(RefCell::new(PacketDatum::List(vec![])));
+
+                    if let Some(parent_bracket_idx) = open_bracket_indices.last() {
+                        let parent_list = lists.get(parent_bracket_idx).unwrap();
+                        parent_list.borrow_mut().add_list(Rc::clone(&new_list));
+                    }
+
+                    lists.entry(idx).or_insert(new_list);
+
+                    open_bracket_indices.push(idx);
+                }
+                "]" => {
+                    if open_bracket_indices.is_empty() {
+                        return Err(PacketParseError);
+                    }
+
+                    open_bracket_indices.pop();
+                }
+                token => match open_bracket_indices.last() {
+                    Some(parent_bracket_idx) => {
+                        let i: i32 = token.parse().unwrap();
+                        let i = Rc::new(RefCell::new(PacketDatum::Integer(i)));
+                        let parent_list = lists.get(parent_bracket_idx).unwrap();
+                        parent_list.borrow_mut().add_list(i);
+                    }
+                    None => return Err(PacketParseError),
+                },
+            }
+        }
+
+        if !open_bracket_indices.is_empty() {
+            return Err(PacketParseError);
+        }
+
+        let root_list = lists.get(&0).unwrap().borrow().clone();
+
+        Ok(root_list)
+    }
+}
+
+fn get_valid_tokens(s: &str) -> Vec<String> {
+    let s: String = s.chars().filter(|c| !c.is_whitespace()).collect();
+
+    let mut valid_tokens = vec![];
+
+    let mut chars = s.chars().peekable();
+
+    while let Some(c) = chars.next() {
+        match c {
+            '[' | ']' => valid_tokens.push(c.to_string()),
+            '0'..='9' | '-' => {
+                let mut int_str = String::from(c);
+
+                while let Some(c) = chars.peek() {
+                    if !c.is_numeric() {
+                        break;
+                    }
+
+                    int_str.push(chars.next().unwrap());
+                }
+
+                valid_tokens.push(int_str);
+            }
+            _ => (),
+        }
+    }
+
+    valid_tokens
+}
+
+#[cfg(test)]
+mod tests {
+    use crate::datum::PacketDatum;
+
+    #[test]
+    fn all_ints() {
+        let parsed_list: PacketDatum = "[1,2,3]".parse().unwrap();
+
+        let expected_list = PacketDatum::int_list(vec![1, 2, 3]);
+
+        assert!(parsed_list == expected_list);
+    }
+
+    #[test]
+    fn negative_ints() {
+        let parsed_list: PacketDatum = "[1,-220,3]".parse().unwrap();
+
+        let expected_list = PacketDatum::int_list(vec![1, -220, 3]);
+
+        assert!(parsed_list == expected_list);
+    }
+
+    mod advent_of_code_examples {
+        use crate::datum::PacketDatum as pd;
+        use std::cell::RefCell;
+        use std::rc::Rc;
+
+        #[test]
+        fn ex_1() {
+            let parsed_list: pd = "[1,1,3,1,1]".parse().unwrap();
+            let expected_list = pd::int_list(vec![1, 1, 3, 1, 1]);
+
+            assert!(parsed_list == expected_list);
+        }
+
+        #[test]
+        // [[1],[2,3,4]]
+        // [[1],4]
+        fn ex_2() {
+            let parsed_list_1: pd = "[[1],[2,3,4]]".parse().unwrap();
+            let expected_list_1 =
+                pd::list(vec![pd::rc_i_list(vec![1]), pd::rc_i_list(vec![2, 3, 4])]);
+
+            assert!(parsed_list_1 == expected_list_1);
+
+            let parsed_list_2: pd = "[[1],4]".parse().unwrap();
+            let expected_list_2 = pd::list(vec![pd::rc_i_list(vec![1]), pd::rc_int(4)]);
+
+            assert!(parsed_list_2 == expected_list_2);
+        }
+
+        #[test]
+        // []
+        // [3]
+        fn ex_6() {
+            let parsed_list_1: pd = "[]".parse().unwrap();
+            let expected_list_1 = pd::List(vec![]);
+            assert!(parsed_list_1 == expected_list_1);
+
+            let parsed_list_2: pd = "[3]".parse().unwrap();
+            let expected_list_2 = pd::list(vec![pd::rc_int(3)]);
+            assert!(parsed_list_2 == expected_list_2);
+        }
+
+        #[test]
+        // List 1: [[]]
+        // List 2: [[[]]]
+        // Right side ran out of items, so inputs are not in the right order
+        fn ex_7() {
+            let parsed_list_1: pd = "[[]]".parse().unwrap();
+            let expected_list_1 = pd::list(vec![pd::rc_i_list(vec![])]);
+            assert!(parsed_list_1 == expected_list_1);
+
+            let parsed_list_2: pd = "[[[]]]".parse().unwrap();
+            let mut expected_list_2 = pd::List(vec![]);
+            expected_list_2.add_list(Rc::new(RefCell::new(expected_list_1)));
+
+            assert!(parsed_list_2 == expected_list_2);
+
+            assert!(parsed_list_1 < parsed_list_2);
+        }
+
+        #[test]
+        // [1,[2,[3,[4,[5,6,7]]]],8,9]
+        // [1,[2,[3,[4,[5,6,0]]]],8,9]
+        fn ex_8() {
+            fn nested_list(inside_list: Vec<i32>) -> pd {
+                let five_six_seven = pd::int_list(inside_list);
+                let mut four = pd::int_list(vec![4]);
+                four.add_list(Rc::new(RefCell::new(five_six_seven)));
+                let mut three = pd::int_list(vec![3]);
+                three.add_list(Rc::new(RefCell::new(four)));
+                let mut two = pd::int_list(vec![2]);
+                two.add_list(Rc::new(RefCell::new(three)));
+                let mut one = pd::int_list(vec![1]);
+                one.add_list(Rc::new(RefCell::new(two)));
+                one.add_list(Rc::new(RefCell::new(pd::Integer(8))));
+                one.add_list(Rc::new(RefCell::new(pd::Integer(9))));
+                one
+            }
+
+            let parsed_list_1: pd = "[1,[2,[3,[4,[5,6,7]]]],8,9]".parse().unwrap();
+            let expected_list_1 = nested_list(vec![5, 6, 7]);
+            assert!(parsed_list_1 == expected_list_1);
+
+            let parsed_list_2: pd = "[1,[2,[3,[4,[5,6,0]]]],8,9]".parse().unwrap();
+            let expected_list_2 = nested_list(vec![5, 6, 0]);
+            assert!(parsed_list_2 == expected_list_2);
+        }
     }
 }

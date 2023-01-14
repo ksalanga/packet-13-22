@@ -7,4 +7,4 @@
 /// - Datum Module
 ///     - PacketDatum enum
 ///         - nested structure that has lexicographic ordering
-mod datum;
+pub mod datum;
